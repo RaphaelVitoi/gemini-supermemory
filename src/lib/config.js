@@ -11,7 +11,7 @@ function readOptionalString(value) {
   }
 
   const trimmed = value.trim();
-  return trimmed ? trimmed : undefined;
+  return trimmed || undefined;
 }
 
 function validateRequiredApiKey(apiKey) {

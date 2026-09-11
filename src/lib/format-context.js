@@ -39,15 +39,13 @@ export function formatProfileContext(profileResult, maxItems = 5) {
   const sections = [];
 
   if (statics.length) {
-    sections.push(
-      `**Persistent Facts**\n${statics.map((f) => `- ${f}`).join("\n")}`
-    );
+    const staticLines = statics.map((f) => `- ${f}`).join("\n");
+    sections.push(`**Persistent Facts**\n${staticLines}`);
   }
 
   if (dynamics.length) {
-    sections.push(
-      `**Recent Context**\n${dynamics.map((f) => `- ${f}`).join("\n")}`
-    );
+    const dynamicLines = dynamics.map((f) => `- ${f}`).join("\n");
+    sections.push(`**Recent Context**\n${dynamicLines}`);
   }
 
   if (search.length) {

@@ -19,12 +19,18 @@ function dedupeBy(items,getKey){
     })
 }
 
+function getResultKind(results) {
+    if (results?.memory) return "memory";
+    if (results?.chunk) return "chunk";
+    return "unknown";
+}
+
 function normalizeSearchResults(results){
     const text = results?.memory ?? results?.chunk ?? results?.content ?? "";
     return {
         id: results?.id ?? null,
         text,
-        kind: results?.memory ? "memory" : results?.chunk ? "chunk" : "unknown",
+        kind: getResultKind(results),
         chunk: results?.chunk ?? null,
         context: results?.context ?? null,
         documents: Array.isArray(results?.documents) ? results.documents : [],
@@ -115,23 +121,25 @@ export class SupermemoryClient {
         if(!normalizedQuery){
             throw new Error("Search query must be a non-empty string");
         }
-        const results = await this.client.search.memories({
+        const searchPayload = {
             q: normalizedQuery,
             containerTag: this.resolveContainerTag(containerTag),
             limit,
-            searchMode:mode,
+            searchMode: mode,
             filters,
             threshold,
             rerank,
             rewriteQuery,
-        });
+        };
 
-        const mapped = results.results.map(normalizeSearchResults).filter((item) => item.text);
+        const results = await this.client.search(searchPayload);
+
+        const mapped = (results?.results || []).map(normalizeSearchResults).filter((item) => item.text);
 
         return {
             results: dedupeBy(mapped,(item)=>`${item.kind}:${item.text}`),
-            total: results.total,
-            timing: results.timing,
+            total: results?.total ?? mapped.length,
+            timing: results?.timing,
         };
     }
 
@@ -160,17 +168,17 @@ export class SupermemoryClient {
         .filter((item) => item.text);
         return {
          profile: {
-         static: staticFacts,
-         dynamic: dynamicFacts,
-        },
-        searchResults: result.searchResults
-        ? {
-            results: dedupeBy(mappedSearchResults, (item) => item.text),
-            total: result.searchResults.total,
-            timing: result.searchResults.timing,
-          }
-        : null,
-    };
+          static: staticFacts,
+          dynamic: dynamicFacts,
+         },
+         searchResults: result.searchResults
+          ? {
+              results: dedupeBy(mappedSearchResults, (item) => item.text),
+              total: result.searchResults.total,
+              timing: result.searchResults.timing,
+            }
+          : null,
+        };
     }
 }
 

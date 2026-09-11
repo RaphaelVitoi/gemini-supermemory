@@ -60,7 +60,8 @@ function getGitRepoName(cwd = process.cwd()) {
     return null;
   }
 
-  const match = remoteUrl.match(/[/:]([^/]+?)(?:\.git)?$/);
+  const cleanUrl = remoteUrl.endsWith('.git') ? remoteUrl.slice(0, -4) : remoteUrl;
+  const match = /[/:]([^/:]+)$/.exec(cleanUrl);
   return match ? match[1] : null;
 }
 

@@ -10,36 +10,46 @@ import { getGitRoot } from "./git-utils.js";
 const CONFIG_DIR_NAME = ".supermemory";
 const CONFIG_FILE_NAME = "config.json";
 
-function findConfigPath(cwd = process.cwd()) {
-  const gitRoot = getGitRoot(cwd);
-  const basePath = gitRoot || cwd;
-
-  // Check .gemini/.supermemory/config.json first
-  const geminiPath = path.join(
-    basePath,
-    ".gemini",
-    CONFIG_DIR_NAME,
-    CONFIG_FILE_NAME
-  );
-  if (fs.existsSync(geminiPath)) return geminiPath;
-
-  // Fallback: .supermemory/config.json in project root
-  const rootPath = path.join(basePath, CONFIG_DIR_NAME, CONFIG_FILE_NAME);
-  if (fs.existsSync(rootPath)) return rootPath;
-
-  return null;
+function readVerifiedConfigFile(baseDir, relativeTarget) {
+  const basePath = path.normalize(path.resolve(baseDir));
+  const fullPath = path.normalize(path.resolve(basePath, relativeTarget));
+  const relativePath = path.relative(basePath, fullPath);
+  if (relativePath === '..' || relativePath.startsWith(`..${path.sep}`) || path.isAbsolute(relativePath)) {
+    return null;
+  }
+  if (!fs.existsSync(fullPath)) {
+    return null;
+  }
+  return fs.readFileSync(fullPath, "utf-8");
 }
 
 export function loadProjectConfig(cwd = process.cwd()) {
-  const configPath = findConfigPath(cwd);
-  if (!configPath) return null;
+  const gitRoot = getGitRoot(cwd);
+  const basePath = path.normalize(path.resolve(gitRoot || cwd));
 
-  try {
-    const raw = fs.readFileSync(configPath, "utf-8");
-    return JSON.parse(raw);
-  } catch {
-    return null;
+  // Check .gemini/.supermemory/config.json first
+  const geminiRel = path.join(".gemini", CONFIG_DIR_NAME, CONFIG_FILE_NAME);
+  const geminiRaw = readVerifiedConfigFile(basePath, geminiRel);
+  if (geminiRaw) {
+    try {
+      return JSON.parse(geminiRaw);
+    } catch {
+      return null;
+    }
   }
+
+  // Fallback: .supermemory/config.json in project root
+  const rootRel = path.join(CONFIG_DIR_NAME, CONFIG_FILE_NAME);
+  const rootRaw = readVerifiedConfigFile(basePath, rootRel);
+  if (rootRaw) {
+    try {
+      return JSON.parse(rootRaw);
+    } catch {
+      return null;
+    }
+  }
+
+  return null;
 }
 
 export function getProjectApiKey(cwd = process.cwd()) {

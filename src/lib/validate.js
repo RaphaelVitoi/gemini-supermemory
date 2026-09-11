@@ -4,31 +4,30 @@ const UNICODE_SPECIALS = /[\uFFF0-\uFFFF]/g;
 
 const DEFAULT_MAX_LENGTH = 100_000;
 
-// SanitzeContent removes control characters, byte order marks and unicode specials from the content
-export function SanitizeContent(content , maxLength = DEFAULT_MAX_LENGTH) {
-    if(!content || typeof content !== 'string') return '';
+// SanitizeContent removes control characters, byte order marks and unicode specials from the content
+export function SanitizeContent(content, maxLength = DEFAULT_MAX_LENGTH) {
+    if (!content || typeof content !== 'string') return '';
 
-    let sanitized = content ;
+    let sanitized = content
+        .replaceAll(CONTROL_CHARACTERS, '')
+        .replaceAll(BYTE_ORDER_MARK, '')
+        .replaceAll(UNICODE_SPECIALS, '');
 
-    sanitized = sanitized.replace(CONTROL_CHARACTERS, '');
-    sanitized = sanitized.replace(BYTE_ORDER_MARK, '');
-    sanitized = sanitized.replace(UNICODE_SPECIALS, '');
-
-    if(sanitized.length > maxLength){
+    if (sanitized.length > maxLength) {
         sanitized = sanitized.slice(0, maxLength);
     }
     return sanitized;
 }
 
 // ValidateContentLength checks if the content length is within the specified min and max length limits
-export function ValidateContentLength(content, min = 1 ,maxLength = DEFAULT_MAX_LENGTH) {
-   if(content.length < min) {
-    return {valid: false, reason: `Content is below the minimum length of ${min} characters`}
+export function ValidateContentLength(content, min = 1, maxLength = DEFAULT_MAX_LENGTH) {
+   if (content.length < min) {
+    return { valid: false, reason: `Content is below the minimum length of ${min} characters` };
    }
-   if(content.length > maxLength) {
-    return {valid: false, reason: `Content exceeds the maximum length of ${maxLength} characters`}
+   if (content.length > maxLength) {
+    return { valid: false, reason: `Content exceeds the maximum length of ${maxLength} characters` };
    }
-   return {valid: true, reason: null}
+   return { valid: true, reason: null };
 }
 
 // ValidateApiKey checks if the API key is a non-empty string that starts with "sm_" and does not contain whitespace
@@ -62,7 +61,7 @@ export function validateContainerTag(tag) {
       reason: "Container tag may only contain letters, numbers, hyphens, and underscores",
     };
   }
-  if (/^[-_]|[-_]$/.test(tag)) {
+  if (/^[_-]|[_-]$/.test(tag)) {
     return {
       valid: false,
       reason: "Container tag must not start or end with a hyphen or underscore",

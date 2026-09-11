@@ -53,19 +53,25 @@ async function main() {
 
     const client = new SupermemoryClient({ apiKey });
 
-    const handleError = (label) => (err) => {
-      if (isBenignError(err)) return null;
-      console.error(`Supermemory: ${label} — ${getFriendlyError(err)}`);
-      return null;
+    const logError = (label, err) => {
+      if (!isBenignError(err)) {
+        console.error(`Supermemory: ${label} — ${getFriendlyError(err)}`);
+      }
     };
 
     const [personalResult, repoResult] = await Promise.all([
       client
         .getProfile({ containerTag: personalTag, query: projectName })
-        .catch(handleError("personal context")),
+        .catch((err) => {
+          logError("personal context", err);
+          return null;
+        }),
       client
         .getProfile({ containerTag: repoTag, query: projectName })
-        .catch(handleError("project context")),
+        .catch((err) => {
+          logError("project context", err);
+          return null;
+        }),
     ]);
 
     const personalContext = formatProfileContext(personalResult, 5);
@@ -87,4 +93,4 @@ async function main() {
   }
 }
 
-main();
+await main();

@@ -5,7 +5,7 @@
  * @returns {string}
  */
 export function getFriendlyError(err) {
-    const status = err && err.status;
+    const status = err?.status;
     if (status === 400) {
         return 'Bad request \u2014 your API key or request format may be invalid. Check your key at https://console.supermemory.ai';
     }
@@ -21,7 +21,7 @@ export function getFriendlyError(err) {
     if (typeof status === 'number' && status >= 500) {
         return 'Supermemory service is temporarily unavailable. Will retry next session.';
     }
-    return (err && err.message) || 'Unknown error';
+    return err?.message || 'Unknown error';
 }
 
 /**
@@ -34,7 +34,7 @@ export function getFriendlyError(err) {
  * @returns {boolean}
  */
 export function isRetryableError(err) {
-    const status = err && err.status;
+    const status = err?.status;
     if (status === 429) return true;
     if (typeof status === 'number' && status >= 500) return true;
     if (status === undefined || status === null) return true;
@@ -51,7 +51,7 @@ export function isRetryableError(err) {
  * @returns {boolean}
  */
 export function isBenignError(err) {
-    const status = err && err.status;
+    const status = err?.status;
     if (status === 404) return true;
     if (status === undefined || status === null) return true;
     return false;

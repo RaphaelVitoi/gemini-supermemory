@@ -9,7 +9,7 @@ Your agent remembers what you worked on — across sessions, across projects.
 
 - **Persistent Memory** — Memories saved across sessions, automatically loaded when you start
 - **Team Memory** — Project knowledge shared across your team, separate from personal memories
-- **Auto Capture** — Sessions saved automatically when they end
+- **Explicit Capture** — Memories are saved only through the dedicated MCP tools
 - **Auto Load** — Past context injected when a new session starts
 - **Codebase Indexing** — Deep-scan a repo's architecture and save it to memory
 - **Project Config** — Per-repo settings and container tag overrides
@@ -32,12 +32,11 @@ Your extension exposes **3 MCP tools** that Gemini calls automatically:
 | `add_memory` | Save personal memories (decisions, preferences, learnings) |
 | `save_project_memory` | Save team/project knowledge (architecture, conventions) |
 
-Plus **two lifecycle hooks** that run behind the scenes:
+One lifecycle hook runs behind the scenes:
 
 | Hook | Trigger | What it does |
 | --- | --- | --- |
 | **SessionStart** | Session begins | Fetches your past memories and injects them as context |
-| **SessionEnd** | Session ends | Saves a summary of the session to Supermemory |
 
 ## Commands
 
@@ -104,7 +103,6 @@ gemini-supermemory/
     ├── server.js             ← MCP server (3 tools)
     ├── hooks/
     │   ├── session-start.js  ← Auto-load memories
-    │   └── session-end.js    ← Auto-save sessions
     └── lib/
         ├── supermemory-client.js  ← Supermemory SDK wrapper
         ├── container-tag.js       ← Container tag generation

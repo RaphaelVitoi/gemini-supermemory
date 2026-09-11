@@ -19,11 +19,6 @@ await Promise.all([
     entryPoints: ["src/hooks/session-start.js"],
     outfile: "dist/hooks/session-start.js",
   }),
-  build({
-    ...shared,
-    entryPoints: ["src/hooks/session-end.js"],
-    outfile: "dist/hooks/session-end.js",
-  }),
 ]);
 
-console.log("Built dist/server.js, dist/hooks/session-start.js, dist/hooks/session-end.js");
+console.log("Built dist/server.js, dist/hooks/session-start.js");
